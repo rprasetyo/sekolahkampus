@@ -1,0 +1,12 @@
+#Untuk cloning pertama kali
+git clone https://gitlab.com/sinungsuakanto/assetmgt.git assetpupr
+
+#Update
+git pull
+git pull origin master
+#masukkan username dan password
+
+#commit file
+git status
+git commit config/db.php -m "server status"
+git push

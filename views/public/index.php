@@ -1,0 +1,191 @@
+<?php
+
+use app\common\labeling\CommonActionLabelEnum;
+use app\common\utils\EncryptionDB;
+use app\models\JenisSekolah;
+use app\models\Sekolah;
+use app\models\StatusMilik;
+use yii\grid\GridView;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\widgets\Pjax;
+
+/* @var $this yii\web\View */
+/* @var $searchModel app\models\SekolahSearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+$this->title = 'Daftar Sekolah Kampus Propinsi ';
+$jenis_sekolah = ['' => CommonActionLabelEnum::CHOOSE_PROMPT] + ArrayHelper::map(JenisSekolah::find()->all(), 'id_jenis_sekolah', 'jenis_sekolah');
+$statusMilik = ['' => CommonActionLabelEnum::CHOOSE_PROMPT] + ArrayHelper::map(StatusMilik::find()->all(), 'id_status_milik', 'status_milik');
+
+?>
+
+<style>
+    table {
+        margin: 25px auto;
+        border-collapse: collapse;
+        border: 1px solid #eee;
+        border-bottom: 2px solid #00cccc;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1), 0px 10px 20px rgba(0, 0, 0, 0.05), 0px 20px 20px rgba(0, 0, 0, 0.05), 0px 30px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    table tr:hover {
+        background: #f4f4f4;
+    }
+
+    table tr:hover td {
+        color: #555;
+    }
+
+    table th, table td {
+        color: #999;
+        border: 1px solid #eee;
+        padding: 12px 35px;
+        border-collapse: collapse;
+    }
+
+    table th {
+        background: #FFEB3B;
+        color: #3c8dbc;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    table th.last {
+        border-right: none;
+    }
+    .callout {
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1), 0px 10px 20px rgba(0, 0, 0, 0.05), 0px 20px 20px rgba(0, 0, 0, 0.05), 0px 30px 20px rgba(0, 0, 0, 0.05);
+    }
+    .index-list {
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1), 0px 10px 20px rgba(0, 0, 0, 0.05), 0px 20px 20px rgba(0, 0, 0, 0.05), 0px 30px 20px rgba(0, 0, 0, 0.05);
+    }
+    .callout.callout-info{
+        background-color: #1c95b3 !important;
+        border-color: #01030c;
+    }
+    .box {
+        border-radius: 8px;
+    }
+
+</style>
+
+
+<div class="index-list box box-success">
+    <div class="box-header with-border">
+        <h3 class="box-title">Pencarian Data Sekolah</h3>
+
+    </div>
+    <div class="row">
+        <?php echo $this->render('_search', ['model' => $searchModel]); ?>
+    </div>
+    <?php
+    if (isset($_GET['SekolahSearch'])) {
+
+        ?>
+        <?php
+
+        $models = $dataProviderDisplay->getModels();
+        /*
+        foreach($models as $model){
+            echo "==>".$model->number1."<br>";
+        }
+        */
+        ?>
+        <div class="box-body table-responsive">
+            <?php Pjax::begin(); ?>
+            <?= GridView::widget([
+                'dataProvider' => $dataProvider,
+                'showOnEmpty' => true,
+                'options' => [
+                    'class' => 'header',
+                ],
+                'tableOptions' => [
+                    'class' => 'table table-hover '
+                ],
+                'columns' => [
+                    [
+                        'label' => 'Nama Sekolah',
+                        'attribute' => 'nama_sekolah',
+                    ],
+                    [
+                        'label' => 'Nama Sekolah Singkat',
+                        'attribute' => 'nama_sekolah_singkat',
+                    ],
+//                'alias1',
+//                'alias2',
+                    //'alias3',
+                    [
+                        'label' => 'Jenis Sekolah',
+                        'attribute' => 'jenisSekolah.jenis_sekolah',
+                        'filter' => Html::activeDropDownList($searchModel, 'id_jenis_sekolah', $jenis_sekolah, ['class' => 'form-control']),
+                    ],
+                    [
+                        'label' => 'Status Milik',
+                        'attribute' => 'statusMilik.status_milik',
+                        'filter' => Html::activeDropDownList($searchModel, 'id_status_milik', $statusMilik, ['class' => 'form-control']),
+                    ],
+                    [
+                        'label' => 'Website',
+                        'attribute' => 'website',
+                        'format' => 'raw',
+                        'value' => function ($data) {
+                            $url = $data->website;
+                            return Html::a($data->website, $url, ['title' => 'Go']);
+                        }
+                    ],
+                    [
+                        'label' => 'Alamat',
+                        'attribute' => 'alamat1',
+                    ],
+                    //'id_jenis_sekolah',
+                    //'id_status_milik',
+                    //'alamat1',
+                    //'alamat2',
+                    //'alamat3',
+                    //'id_kabupaten',
+                    //'id_propinsi',
+                    //'website',
+                    //'medsos1',
+                    //'medsos2',
+                    //'medsos3',
+                    //'medsos4',
+                    //'medsos5',
+                    //'description1:ntext',
+                    //'description2:ntext',
+                    //'description3:ntext',
+                    //'description4:ntext',
+                    //'description5:ntext',
+                    ['class' => 'yii\grid\ActionColumn',
+                        'template' => ' {status-action}',  // the default buttons + your custom button
+                        'header' => 'Detail',
+                        'buttons' => [
+                            'status-action' => function ($url, $model, $key) {     // render your custom button
+                                $ic = EncryptionDB::encryptor('encrypt', $model->id_sekolah);
+                                $urlpeta = Url::toRoute(['public/view-detail', 'c' => $ic]);
+                                return Html::a('Detail', $urlpeta, ['class' => 'btn btn-sm bg-navy']);
+                            }
+                        ]
+                    ],
+                ],
+            ]); ?>
+            <?php Pjax::end(); ?>
+        </div>
+
+        <?php
+    } else {
+        echo '
+	<div class="callout callout-info">
+		<h4>PETUNJUK PENCARIAN</h4>
+
+		<p>Silakan pilih terlebih dahulu parameter yang akan dicari! Kemudian pilih tombol CARI</p>
+	 </div>
+	';
+    }
+    ?>
+</div>
+
+
+
+
+
